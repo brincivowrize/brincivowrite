@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Web Flow - Detail Profil</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #09090b;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      overflow-y: auto;
+    }
+
+    /* Wadah utama khusus layar HP */
+    .mobile-container {
+      width: 100%;
+      max-width: 400px;
+      background-color: #121215;
+      border: 1px solid #27272a;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      margin: auto 0;
+    }
+
+    /* Header atas */
+    .top-bar {
+      background-color: #18181b;
+      padding: 14px 20px;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .status-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background-color: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+
+    .status-dot.locked {
+      background-color: #eab308;
+      box-shadow: 0 0 8px #eab308;
+    }
+
+    .top-bar span {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #a1a1aa;
+      text-transform: uppercase;
+    }
+
+    .content-wrapper {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .title-card {
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 14px;
+      padding: 22px 20px;
+      text-align: center;
+    }
+
+    .title-card h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .big-header {
+      text-align: center;
+      padding: 10px 0 4px 0;
+    }
+
+    .big-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .desc-card {
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .desc-card p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e4e4e7;
+    }
+
+    /* ================= GRID 2 KOLOM (HALAMAN 3) ================= */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    /* Dibuat interaktif seperti tombol saat ditekan */
+    .grid-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .grid-item:active {
+      transform: scale(0.95);
+    }
+
+    .grid-item:hover .image-box {
+      border-color: #ffffff;
+    }
+
+    .image-box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 16px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: border-color 0.2s;
+    }
+
+    .image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-placeholder {
+      font-size: 13px;
+      color: #71717a;
+      font-weight: 500;
+    }
+
+    .name-box {
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f4f4f5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ================= HALAMAN 4: DETAIL PROFIL ================= */
+    .profile-top {
+      display: flex;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    /* Kotak gambar di kiri */
+    .profile-image {
+      width: 44%;
+      aspect-ratio: 1 / 1;
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .profile-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 3 kotak info tersusun vertikal di kanan */
+    .profile-info-stack {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .info-pill {
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 10px;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-pill span.label {
+      font-size: 10px;
+      color: #71717a;
+      display: block;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    /* Kotak deskripsi besar di tengah */
+    .profile-bio-box {
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 16px;
+      padding: 24px 18px;
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .profile-bio-box p {
+      font-size: 14px;
+      line-height: 1.65;
+      color: #e4e4e7;
+    }
+
+    /* Ruang jarak tombol bawah */
+    .nav-space {
+      margin-top: 10px;
+      padding-top: 18px;
+      border-top: 1px dashed #27272a;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Input Password */
+    .password-input {
+      width: 100%;
+      background-color: #09090b;
+      border: 1px solid #3f3f46;
+      border-radius: 16px;
+      padding: 16px;
+      color: #ffffff;
+      font-size: 15px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .password-input:focus {
+      border-color: #ffffff;
+    }
+
+    .password-input::placeholder {
+      color: #71717a;
+    }
+
+    /* Tombol Aksi */
+    .action-btn {
+      width: 100%;
+      background-color: #ffffff;
+      color: #09090b;
+      border: none;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .back-btn {
+      background-color: transparent;
+      color: #a1a1aa;
+      border: 1px solid #27272a;
+      font-weight: 600;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= HALAMAN 1 ================= -->
+  <main id="page-1" class="mobile-container">
+    <div class="top-bar">
+      <div class="status-group">
+        <div class="status-dot"></div>
+        <span>Halaman 01</span>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      <section class="title-card">
+        <h1>MY BEST FRIEND</h1>
+      </section>
+
+      <section class="desc-card">
+        <p>
+          Ini adalah web dimana informas-informasi tentang Teman-Temanku menururt pendapatku :).
+        </p>
+      </section>
+
+      <div class="nav-space">
+        <button class="action-btn" onclick="goToPage('page-2')">
+          Lanjut ke Halaman Berikutnya →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 2 (PASSWORD) ================= -->
+  <main id="page-2" class="mobile-container hidden">
+    <div class="top-bar">
+      <div class="status-group">
+        <div class="status-dot locked"></div>
+        <span>Verifikasi Akses</span>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      <section class="desc-card">
+        <p>
+         Masukkan kata sandi yang benar di bawah ini untuk membuka akses.
+        </p>
+      </section>
+
+      <input 
+        type="password" 
+        id="passInput" 
+        class="password-input" 
+        placeholder="input the password"
+        onkeypress="handleEnter(event)"
+      >
+      
+      <p id="errorText" class="error-msg">Password salah! Coba lagi.</p>
+
+      <div class="nav-space">
+        <button class="action-btn" onclick="checkPassword()">
+          Buka Halaman Selanjutnya
+        </button>
+        <button class="action-btn back-btn" onclick="goToPage('page-1')">
+          ← Kembali
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 3 (GALERI GRID 2 KOLOM) ================= -->
+  <main id="page-3" class="mobile-container hidden">
+    <div class="top-bar">
+      <div class="status-group">
+        <div class="status-dot"></div>
+        <span>Galeri Utama</span>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      <header class="big-header">
+        <h1>List Teman-Teman</h1>
+      </header>
+
+      <section class="desc-card">
+        <p>
+          Pilih dan tekan salah satu gambar di bawah untuk melihat detail profil lengkapnya.
+        </p>
+      </section>
+
+      <!-- Daftar Grid (Otomatis terisi dari data JavaScript) -->
+      <section id="galleryContainer" class="gallery-grid"></section>
+
+      <div class="nav-space">
+        <button class="action-btn back-btn" onclick="logout()">
+          Kunci & Kembali ke Awal
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= HALAMAN 4 (DETAIL PROFIL) ================= -->
+  <main id="page-4" class="mobile-container hidden">
+    <div class="top-bar">
+      <div class="status-group">
+        <div class="status-dot"></div>
+        <span>Detail Profil</span>
+      </div>
+    </div>
+
+    <div class="content-wrapper">
+      
+      <!-- Bagian Atas: Gambar Kiri + 3 Info Kanan -->
+      <section class="profile-top">
+        <div class="profile-image" id="detailImage">
+          <span class="image-placeholder">gambar</span>
+        </div>
+
+        <div class="profile-info-stack">
+          <div class="info-pill">
+            <div>
+              <span class="label">Name</span>
+              <span id="detailName">name ohio</span>
+            </div>
+          </div>
+          <div class="info-pill">
+            <div>
+              <span class="label">Status</span>
+              <span id="detailStatus">status</span>
+            </div>
+          </div>
+          <div class="info-pill">
+            <div>
+              <span class="label">Live Place</span>
+              <span id="detailPlace">live place</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bagian Tengah: Kotak Deskripsi Besar -->
+      <section class="profile-bio-box">
+        <p id="detailBio">deskribe about he</p>
+      </section>
+
+      <!-- Bagian Bawah: Tombol Kembali ke Galeri (Page 3) -->
+      <div class="nav-space">
+        <button class="action-btn" onclick="goToPage('page-3')">
+          ← Kembali ke Halaman Sebelumnya
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= LOGIKA JAVASCRIPT & DATA ================= -->
+  <script>
+    const PASSWORD_RAHASIA = "kepercayaan";
+
+    // ATUR DATA SETIAP GAMBAR & PROFIL DI SINI:
+    const dataProfil = [
+      {
+        nama: "Hanif ahmad huda",
+        status: "Teman tetangga",
+        tempat: "Bekasi",
+        gambar: "WhatsApp Image 2026-11-14 at 18.49.15.jpeg", // Isi link/nama file foto jika ada, contoh: "foto1.jpg"
+        labelGambar: "gambar 1",
+        deskripsi: "pertama kali bertemu gegara ketidak sengajaan gw menyanyikan lagu undertale dia menyapaku aku pun sontak kaget.dia ternyata juga menyukai undertale dia hampir memiliki kesamaan dengaku relate dan kami saling berbagi tentang kehidupan yang amat menyedihkankan dan saling memahami satu sama lain. ntah mengapa aku merasa kalo bersamanya satu sprekuensi sama dia. ia selalu memberikan ide-ide sketsa maupun bentuk karakter yang ia bayangkan. dia sangat penuh dengan pengetahuan dan kreatif. yang tidak kepikiran di otakku"
+      },
+      {
+        nama: "Ghustav Vino Qalam Firdaus",
+        status: "Teman sekolah smp",
+        tempat: "Bekasi",
+        gambar: "IMG-20251030-WA0203.jpg",
+        labelGambar: "gambar 2",
+        deskripsi: "pertama kali aku bertemu dia disekolah smp it 05 (noelim). gw sangat senang awal ketemu dia karna ia lucu dan rada konyol ataupun sangat humoris. walaupun dia orang kaya dia tidak perduli dengan status temannya ia salalu berbagi dan kadang kita selalu nginep di rumahnya anggep lah reuni smp pokoknya di lucu banget sifatnya  kadang-kadang kami selalu bercanda dan sering ketawa dan selalu dihukum bareng kalo sama-sama kena masalah "
+      },
+      {
+        nama: "Alphat Yudistira",
+        status: "Teman sekolah smk",
+        tempat: "Bekasi",
+        gambar: "IMG-20251030-WA0179.jpg",
+        labelGambar: "gambar 3",
+        deskripsi: "pertama kali bertemu aku merasa ia ahli dalam hal-hal bongkar pasang barang elektronik. dia tau persis alat tersebut ntah dari namanya,bentuknya fisiknya, dan seri alat yang bahkan orang biasapun tidak pernah memperhatikan. ia pernah mengajarkanku cara memperbaiki tombol volume hp , aku takut hpku bakalan rusak tapi ia berseru 'tenang gw jago kok' . gw pun mempercayainya. alhamdulilahnya hpku berfungsi normal aku bersyukur punya teman sepertinya dan dia lah yang menginspirasiku untuk bisa membongkar dan membetulkan alat-alat prabotan rumahku dengan tanganku sendiri "
+      },
+      {
+        nama: "Pian",
+        status: "Teman tetangga",
+        tempat: "Bekasi",
+        gambar: "Screenshot 2026-11-14 191851.png",
+        labelGambar: "gambar 4",
+        deskripsi: "pertama kali bertemu aku tidak ingat yang pasti pas awal-awal dia gak punya hp dan gw mendowload game stikman yang bisa dimainkan berempat bersama athala,pajri,apis pas jaman smp . kalo batre hpku habis kami lanjut main kejar-kejaran dan permainan lainya yang menggunakan otot. setelah memiliki hp masing-masing mereka sering mengajakku bermain ML pushrank walau kalah mulu janji mereka adalah tahun depan pasti imo njayy. dan juga kalo bosen main roblox. dia sering nyamper aku atau aku yang nyamper dia buat main atau Mbr  kaddang kita juga singgah di warung yaitu mak nopi walau warungnya kecil tapi orangnya ramah dan baik hati rumahnya yang luas kadang buat kita kadang nongki mabar bareng tema-teman"
+      },
+      {
+        nama: "Gibril mohammad ariel",
+        status: "Teman sekolah smp",
+        tempat: "Bekasi",
+        gambar: "Screenshot 2026-11-14 190147.png",
+        labelGambar: "gambar 5",
+        deskripsi: "pertama kali bertemu di sekolah smp it attaqwa 05. gw tertarik sam dia karna gw sering usilin dia dan reaksi dia yang sangat lucu saat aku mengerjainya mungkin karna dia introvert. kadang kalonia kesusahan kau sering bantu dia agar ia paham dalam pelajaran yang menurutnya membingungkan sejak saat aku mengenalnya lebih dekat aku semakin usil sama dai tapi dia tidak kesal tidak menunjukkan muka marah atau kesel dia ahli dalam menahan emosi itu yang membuatku tertarik dengan sifat yang sperti itu dia benar-benar orang yang sabar tingkat tiggi spertinay kalo mau ditiru pun akan sangat susah. bagiku gibril itu orang yang unik bahkan diusianya smp dia dapat menghasilkan uang yang lumayan ntah buat jajan, buat beli item di game dan lain-lain"
+      },
+      {
+        nama: "al-bijar",
+        status: "Teman tetangga",
+        tempat: "Bekasi",
+        gambar: "Screenshot 2026-11-14 191754.png",
+        labelGambar: "gambar 6",
+        deskripsi: "pertama kali bertemu dia dikenali oleh pian dia orangnya humoris dan lucu kadang aku mabar ml atau roblox bareng pian dan dia, walau dia bot di game lain tappi dia kalo masalah ngehack game dia jagonya kadang aku minta item yang grindingnya butuh berminggu-minggu sama dia modal sehari sudah dapat kadang aku minta bataun dari dia buat mendapatakan item yang aku inginkan tanpa meminta imbalan sungguh teman yang saling menguntungkan "
+      }
+    ];
+
+    // Fungsi untuk menampilkan daftar gambar ke Halaman 3
+    function renderGallery() {
+      const container = document.getElementById('galleryContainer');
+      container.innerHTML = '';
+
+      dataProfil.forEach((item, index) => {
+        const imageHTML = item.gambar 
+          ? `<img src="${item.gambar}" alt="${item.nama}">`
+          : `<span class="image-placeholder">${item.labelGambar}</span>`;
+
+        const cardHTML = `
+          <div class="grid-item" onclick="openDetail(${index})">
+            <div class="image-box">
+              ${imageHTML}
+            </div>
+            <div class="name-box">${item.nama}</div>
+          </div>
+        `;
+        container.innerHTML += cardHTML;
+      });
+    }
+
+    // Fungsi saat salah satu gambar di Halaman 3 diklik -> pindah ke Halaman 4
+    function openDetail(index) {
+      const profil = dataProfil[index];
+
+      // Masukkan data ke Halaman 4
+      document.getElementById('detailName').textContent = profil.nama;
+      document.getElementById('detailStatus').textContent = profil.status;
+      document.getElementById('detailPlace').textContent = profil.tempat;
+      document.getElementById('detailBio').textContent = profil.deskripsi;
+
+      const detailImgBox = document.getElementById('detailImage');
+      if (profil.gambar) {
+        detailImgBox.innerHTML = `<img src="${profil.gambar}" alt="${profil.nama}">`;
+      } else {
+        detailImgBox.innerHTML = `<span class="image-placeholder">${profil.labelGambar}</span>`;
+      }
+
+      goToPage('page-4');
+    }
+
+    function goToPage(pageId) {
+      document.getElementById('page-1').classList.add('hidden');
+      document.getElementById('page-2').classList.add('hidden');
+      document.getElementById('page-3').classList.add('hidden');
+      document.getElementById('page-4').classList.add('hidden');
+      
+      document.getElementById(pageId).classList.remove('hidden');
+      document.getElementById('errorText').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function checkPassword() {
+      const input = document.getElementById('passInput').value;
+      const errorText = document.getElementById('errorText');
+
+      if (input === PASSWORD_RAHASIA) {
+        document.getElementById('passInput').value = '';
+        goToPage('page-3');
+      } else {
+        errorText.style.display = 'block';
+      }
+    }
+
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        checkPassword();
+      }
+    }
+
+    function logout() {
+      goToPage('page-1');
+    }
+
+    // Jalankan render galeri saat web pertama dibuka
+    renderGallery();
+  </script>
+
+</body>
+</html>
